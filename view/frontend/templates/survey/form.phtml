@@ -1,0 +1,217 @@
+<?php
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ *
+ * @var \Magic\Survey\Block\Survey $block
+ */
+
+$survey    = $block->getSurvey();
+$questions = $block->getQuestions();
+
+if (!$survey || empty($questions)):
+    return;
+endif;
+?>
+
+<div class="magic-survey-wrapper" id="magic-survey-section">
+    <div class="magic-survey-container">
+
+        <h2 class="magic-survey-title"><?= $block->escapeHtml($survey->getTitle()) ?></h2>
+
+        <?php if ($survey->getDescription()): ?>
+            <p class="magic-survey-description"><?= $block->escapeHtml($survey->getDescription()) ?></p>
+        <?php endif; ?>
+
+        <form id="magic-survey-form"
+              action="<?= $block->escapeUrl($block->getSubmitUrl()) ?>"
+              method="post"
+              data-survey-id="<?= (int) $survey->getId() ?>"
+              data-order-id="<?= (int) $block->getOrderId() ?>">
+
+            <?= $block->getBlockHtml('formkey') ?>
+
+            <input type="hidden" name="survey_id" value="<?= (int) $survey->getId() ?>"/>
+            <input type="hidden" name="order_id" value="<?= (int) $block->getOrderId() ?>"/>
+
+            <?php foreach ($questions as $item): ?>
+                <?php
+                /** @var \Magic\Survey\Model\Question $question */
+                $question = $item['question'];
+                $options  = $item['options'];
+                $qId      = (int) $question->getId();
+                $type     = $question->getType();
+                $required = (bool) $question->getIsRequired();
+                ?>
+
+                <div class="magic-survey-question" data-question-id="<?= $qId ?>">
+                    <label class="question-label <?= $required ? 'required' : '' ?>">
+                        <?= $block->escapeHtml($question->getTitle()) ?>
+                        <?php if ($required): ?><span class="required-mark">*</span><?php endif; ?>
+                    </label>
+
+                    <?php if ($type === 'radio'): ?>
+                        <div class="question-options options-radio">
+                            <?php foreach ($options as $option): ?>
+                                <div class="option-item">
+                                    <input type="radio"
+                                           id="opt_<?= (int) $option->getId() ?>"
+                                           name="answers[<?= $qId ?>]"
+                                           value="<?= (int) $option->getId() ?>"
+                                        <?= $required ? 'required' : '' ?>>
+                                    <label for="opt_<?= (int) $option->getId() ?>">
+                                        <?= $block->escapeHtml($option->getLabel()) ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                    <?php elseif ($type === 'checkbox'): ?>
+                        <div class="question-options options-checkbox">
+                            <?php foreach ($options as $option): ?>
+                                <div class="option-item">
+                                    <input type="checkbox"
+                                           id="opt_<?= (int) $option->getId() ?>"
+                                           name="answers[<?= $qId ?>][]"
+                                           value="<?= (int) $option->getId() ?>">
+                                    <label for="opt_<?= (int) $option->getId() ?>">
+                                        <?= $block->escapeHtml($option->getLabel()) ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                    <?php elseif ($type === 'dropdown'): ?>
+                        <div class="question-options options-dropdown">
+                            <select name="answers[<?= $qId ?>]" <?= $required ? 'required' : '' ?>>
+                                <option value=""><?= __('-- Please select --') ?></option>
+                                <?php foreach ($options as $option): ?>
+                                    <option value="<?= (int) $option->getId() ?>">
+                                        <?= $block->escapeHtml($option->getLabel()) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                    <?php elseif ($type === 'text'): ?>
+                        <div class="question-options options-text">
+                            <textarea name="answers[<?= $qId ?>]"
+                                      rows="3"
+                                      placeholder="<?= __('Your answer...') ?>"
+                                      <?= $required ? 'required' : '' ?>></textarea>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+
+            <div class="magic-survey-actions">
+                <button type="submit" class="action primary magic-survey-submit">
+                    <span><?= __('Submit Survey') ?></span>
+                </button>
+            </div>
+
+            <div id="magic-survey-message" class="magic-survey-message" style="display:none;"></div>
+        </form>
+
+    </div>
+</div>
+
+<style>
+.magic-survey-wrapper {
+    margin: 30px 0;
+    padding: 30px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+.magic-survey-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+.magic-survey-description {
+    color: #666;
+    margin-bottom: 20px;
+}
+.magic-survey-question {
+    margin-bottom: 24px;
+}
+.question-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.question-label.required .required-mark {
+    color: #e02b27;
+    margin-left: 4px;
+}
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.options-dropdown select,
+.options-text textarea {
+    width: 100%;
+    max-width: 480px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.magic-survey-actions {
+    margin-top: 20px;
+}
+.magic-survey-message {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+.magic-survey-message.success {
+    background: #e6f4ea;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+.magic-survey-message.error {
+    background: #fdecea;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+</style>
+
+<script>
+require(['jquery'], function ($) {
+    'use strict';
+
+    $('#magic-survey-form').on('submit', function (e) {
+        e.preventDefault();
+
+        var $form    = $(this);
+        var $btn     = $form.find('.magic-survey-submit');
+        var $message = $('#magic-survey-message');
+
+        $btn.prop('disabled', true).find('span').text('<?= __('Submitting...') ?>');
+
+        $.ajax({
+            url:      $form.attr('action'),
+            type:     'POST',
+            data:     $form.serialize(),
+            dataType: 'json',
+            success:  function (response) {
+                $message.removeClass('success error').show();
+                if (response.success) {
+                    $form.hide();
+                    $message.addClass('success').text(response.message);
+                } else {
+                    $message.addClass('error').text(response.message);
+                    $btn.prop('disabled', false).find('span').text('<?= __('Submit Survey') ?>');
+                }
+            },
+            error: function () {
+                $message.removeClass('success error').addClass('error')
+                    .show().text('<?= __('An error occurred. Please try again.') ?>');
+                $btn.prop('disabled', false).find('span').text('<?= __('Submit Survey') ?>');
+            }
+        });
+    });
+});
+</script>

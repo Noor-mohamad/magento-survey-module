@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Backend/etc/menu.xsd">
+    <menu>
+        <add id="Magic_Survey::survey_root"
+             title="Surveys"
+             module="Magic_Survey"
+             sortOrder="55"
+             resource="Magic_Survey::survey_root"/>
+        <add id="Magic_Survey::survey_manage"
+             title="Manage Surveys"
+             module="Magic_Survey"
+             sortOrder="10"
+             parent="Magic_Survey::survey_root"
+             action="magicsurvey/survey/index"
+             resource="Magic_Survey::survey_manage"/>
+        <add id="Magic_Survey::survey_results"
+             title="Survey Results"
+             module="Magic_Survey"
+             sortOrder="20"
+             parent="Magic_Survey::survey_root"
+             action="magicsurvey/results/index"
+             resource="Magic_Survey::survey_results"/>
+    </menu>
+</config>

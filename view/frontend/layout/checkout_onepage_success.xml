@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magic\Survey\Block\Survey"
+                   name="magic_survey_block"
+                   template="Magic_Survey::survey/form.phtml"
+                   after="checkout.success"/>
+        </referenceContainer>
+    </body>
+</page>

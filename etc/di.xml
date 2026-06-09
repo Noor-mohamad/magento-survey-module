@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="magic_survey_listing_data_source" xsi:type="string">Magic\Survey\Model\ResourceModel\Survey\Grid\Collection</item>
+                <item name="magic_survey_results_listing_data_source" xsi:type="string">Magic\Survey\Model\ResourceModel\Response\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Interface to implementation mappings -->
+    <preference for="Magic\Survey\Api\Data\SurveyInterface"         type="Magic\Survey\Model\Survey"/>
+    <preference for="Magic\Survey\Api\Data\QuestionInterface"        type="Magic\Survey\Model\Question"/>
+    <preference for="Magic\Survey\Api\Data\AnswerOptionInterface"    type="Magic\Survey\Model\AnswerOption"/>
+    <preference for="Magic\Survey\Api\Data\ResponseInterface"        type="Magic\Survey\Model\Response"/>
+    <preference for="Magic\Survey\Api\Data\ResponseDetailInterface"  type="Magic\Survey\Model\ResponseDetail"/>
+    <preference for="Magic\Survey\Api\Data\AnswerDataInterface"      type="Magic\Survey\Model\Data\AnswerData"/>
+    <preference for="Magic\Survey\Api\SurveyManagementInterface"     type="Magic\Survey\Model\SurveyManagement"/>
+
+    <virtualType name="Magic\Survey\Model\ResourceModel\Survey\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">magic_survey</argument>
+            <argument name="resourceModel" xsi:type="string">Magic\Survey\Model\ResourceModel\Survey</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Magic\Survey\Model\ResourceModel\Response\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">magic_survey_response</argument>
+            <argument name="resourceModel" xsi:type="string">Magic\Survey\Model\ResourceModel\Response</argument>
+        </arguments>
+    </virtualType>
+
+</config>

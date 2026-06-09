@@ -1,0 +1,91 @@
+<?php
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ * @var \Magic\Survey\Block\Adminhtml\Results\View $block
+ */
+
+$response = $block->getResponse();
+if (!$response->getId()) {
+    return;
+}
+
+$survey    = $block->getSurvey((int) $response->getSurveyId());
+$questions = $block->getQuestions((int) $response->getSurveyId());
+$answers   = $block->getAnswers((int) $response->getId());
+?>
+<div class="admin__data-grid-wrap" style="padding: 20px;">
+
+    <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>" class="action-default scalable back" style="margin-bottom:20px;display:inline-block;">
+        &larr; <?= $block->escapeHtml(__('Back to Results')) ?>
+    </a>
+
+    <!-- Response Summary -->
+    <div class="admin__fieldset" style="margin-bottom:24px;">
+        <div class="admin__fieldset-title"><?= $block->escapeHtml(__('Response Details')) ?></div>
+        <table class="data-grid" style="width:auto;min-width:500px;">
+            <tbody>
+                <tr>
+                    <th style="width:200px;"><?= $block->escapeHtml(__('Response ID')) ?></th>
+                    <td>#<?= (int) $response->getId() ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Survey')) ?></th>
+                    <td><?= $block->escapeHtml($survey->getTitle() ?: '—') ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Customer Email')) ?></th>
+                    <td><?= $block->escapeHtml($block->getCustomerEmail()) ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Order ID')) ?></th>
+                    <td><?= $block->escapeHtml($block->getOrderIncrementId()) ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Submitted At')) ?></th>
+                    <td><?= $block->escapeHtml($response->getSubmittedAt() ?: '—') ?></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Answers -->
+    <div class="admin__fieldset">
+        <div class="admin__fieldset-title"><?= $block->escapeHtml(__('Answers')) ?></div>
+        <?php if (empty($questions)): ?>
+            <p><?= $block->escapeHtml(__('No questions found for this survey.')) ?></p>
+        <?php else: ?>
+        <table class="data-grid" style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th><?= $block->escapeHtml(__('Question')) ?></th>
+                    <th><?= $block->escapeHtml(__('Answer')) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $i = 1; foreach ($questions as $question): ?>
+                <?php $qId = (int) $question->getId(); ?>
+                <tr>
+                    <td><?= $i++ ?></td>
+                    <td><?= $block->escapeHtml($question->getTitle()) ?></td>
+                    <td>
+                        <?php if (!empty($answers[$qId])): ?>
+                            <?php foreach ($answers[$qId] as $detail): ?>
+                                <?php if ($detail->getAnswerText()): ?>
+                                    <?= $block->escapeHtml($detail->getAnswerText()) ?>
+                                <?php elseif ($detail->getOptionId()): ?>
+                                    <?= $block->escapeHtml($block->getOptionLabel((int) $detail->getOptionId())) ?>
+                                <?php endif; ?>
+                                <br>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <em style="color:#999;"><?= $block->escapeHtml(__('No answer')) ?></em>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+</div>

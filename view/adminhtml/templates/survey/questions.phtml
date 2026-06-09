@@ -1,0 +1,110 @@
+<?php
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ *
+ * @var \Magic\Survey\Block\Adminhtml\Survey\Edit\Questions $block
+ */
+
+$surveyId  = $block->getSurveyId();
+$questions = $block->getQuestions();
+?>
+
+<style>
+.survey-questions-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+}
+.survey-questions-grid thead tr {
+    background: #514943 !important;
+}
+.survey-questions-grid thead th {
+    padding: 10px 14px;
+    text-align: left;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 2px solid #403530;
+    background: transparent !important;
+    white-space: nowrap;
+}
+.survey-questions-grid thead th.col-actions {
+    text-align: center;
+}
+.survey-questions-grid tbody tr:nth-child(odd) {
+    background: #ffffff;
+}
+.survey-questions-grid tbody tr:nth-child(even) {
+    background: #f8f8f8;
+}
+.survey-questions-grid tbody tr:hover {
+    background: #e8f0fe;
+}
+.survey-questions-grid tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 13px;
+    color: #333;
+    vertical-align: middle;
+}
+.survey-questions-grid tbody td.col-actions {
+    text-align: center;
+    white-space: nowrap;
+}
+.survey-questions-grid .col-type {
+    text-transform: capitalize;
+}
+</style>
+
+<?php if ($surveyId): ?>
+<div class="admin__data-grid-wrap" style="margin-top: 30px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 0 10px;">
+        <h3 style="margin:0; font-size:16px; font-weight:600;"><?= __('Questions') ?></h3>
+        <a href="<?= $block->escapeUrl($block->getAddQuestionUrl()) ?>"
+           class="action-default scalable action-primary">
+            <span><?= __('Add New Question') ?></span>
+        </a>
+    </div>
+
+    <?php if (empty($questions)): ?>
+        <p style="color:#888; padding:12px 0;"><?= __('No questions added yet. Click "Add New Question" to start.') ?></p>
+    <?php else: ?>
+        <table class="survey-questions-grid">
+            <thead>
+                <tr>
+                    <th><?= __('Sort Order') ?></th>
+                    <th><?= __('Question') ?></th>
+                    <th><?= __('Type') ?></th>
+                    <th><?= __('Required') ?></th>
+                    <th class="col-actions"><?= __('Actions') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($questions as $question): ?>
+                    <tr>
+                        <td><?= (int) $question->getSortOrder() ?></td>
+                        <td><?= $block->escapeHtml($question->getTitle()) ?></td>
+                        <td class="col-type"><?= $block->escapeHtml($question->getType()) ?></td>
+                        <td><?= $question->getIsRequired() ? __('Yes') : __('No') ?></td>
+                        <td class="col-actions">
+                            <a href="<?= $block->escapeUrl($block->getEditQuestionUrl((int) $question->getId())) ?>">
+                                <?= __('Edit') ?>
+                            </a>
+                            &nbsp;|&nbsp;
+                            <a href="<?= $block->escapeUrl($block->getDeleteQuestionUrl((int) $question->getId())) ?>"
+                               onclick="return confirm('<?= __('Are you sure you want to delete this question?') ?>');"
+                               style="color:#e02b27;">
+                                <?= __('Delete') ?>
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+<?php else: ?>
+<div style="margin-top:24px; padding:14px 18px; background:#fff8e1; border:1px solid #ffe082; border-radius:4px; color:#795548;">
+    <?= __('Save the survey first before adding questions.') ?>
+</div>
+<?php endif; ?>

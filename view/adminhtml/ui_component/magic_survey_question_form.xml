@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">magic_survey_question_form.magic_survey_question_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Question Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="back"   class="Magic\Survey\Block\Adminhtml\Question\Edit\BackButton"/>
+            <button name="delete" class="Magic\Survey\Block\Adminhtml\Question\Edit\DeleteButton"/>
+            <button name="save"   class="Magic\Survey\Block\Adminhtml\Question\Edit\SaveButton"/>
+        </buttons>
+        <namespace>magic_survey_question_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>magic_survey_question_form.magic_survey_question_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="magic_survey_question_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="magicsurvey/question/save"/>
+        </settings>
+        <dataProvider class="Magic\Survey\Model\Question\DataProvider"
+                      name="magic_survey_question_form_data_source">
+            <settings>
+                <requestFieldName>question_id</requestFieldName>
+                <primaryFieldName>question_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <fieldset name="general">
+        <settings>
+            <label translate="true">Question Details</label>
+        </settings>
+
+        <field name="question_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+            </settings>
+        </field>
+
+        <field name="survey_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+            </settings>
+        </field>
+
+        <field name="title" formElement="textarea">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Question Text</label>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+
+        <field name="type" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Question Type</label>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magic\Survey\Model\Config\Source\QuestionType"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <field name="is_required" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Required</label>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true"  xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+
+        <field name="sort_order" formElement="input">
+            <settings>
+                <dataType>number</dataType>
+                <label translate="true">Sort Order</label>
+            </settings>
+        </field>
+
+    </fieldset>
+
+    <fieldset name="answer_options">
+        <settings>
+            <label translate="true">Answer Options (for Radio / Checkbox / Dropdown)</label>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+        </settings>
+
+        <dynamicRows name="options">
+            <settings>
+                <addButtonLabel translate="true">Add Option</addButtonLabel>
+                <componentType>dynamicRows</componentType>
+                <dndConfig>
+                    <param name="enabled" xsi:type="boolean">false</param>
+                </dndConfig>
+            </settings>
+            <container name="record" component="Magento_Ui/js/dynamic-rows/record">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="isTemplate"  xsi:type="boolean">true</item>
+                        <item name="is_collection" xsi:type="boolean">true</item>
+                    </item>
+                </argument>
+                <field name="option_id" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <visible>false</visible>
+                    </settings>
+                </field>
+                <field name="label" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Option Label</label>
+                        <validation>
+                            <rule name="required-entry" xsi:type="boolean">true</rule>
+                        </validation>
+                    </settings>
+                </field>
+                <actionDelete>
+                    <settings>
+                        <componentType>actionDelete</componentType>
+                    </settings>
+                </actionDelete>
+            </container>
+        </dynamicRows>
+    </fieldset>
+
+</form>

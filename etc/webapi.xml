@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magic, Inc. All rights reserved.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Get the currently active survey -->
+    <route url="/V1/magic-survey/active" method="GET">
+        <service class="Magic\Survey\Api\SurveyManagementInterface" method="getActiveSurvey"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Get all questions (with options) for a specific survey -->
+    <route url="/V1/magic-survey/:surveyId/questions" method="GET">
+        <service class="Magic\Survey\Api\SurveyManagementInterface" method="getSurveyQuestions"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Submit survey answers -->
+    <route url="/V1/magic-survey/submit" method="POST">
+        <service class="Magic\Survey\Api\SurveyManagementInterface" method="submitSurvey"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+</routes>
