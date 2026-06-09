@@ -1,0 +1,60 @@
+type Query {
+    magicActiveSurvey: MagicSurvey
+        @resolver(class: "Magic\\Survey\\Model\\Resolver\\ActiveSurvey")
+        @doc(description: "Returns the currently active survey.")
+
+    magicSurveyQuestions(
+        survey_id: Int! @doc(description: "ID of the survey to fetch questions for.")
+    ): [MagicSurveyQuestion]
+        @resolver(class: "Magic\\Survey\\Model\\Resolver\\SurveyQuestions")
+        @doc(description: "Returns all questions with answer options for a given survey.")
+}
+
+type Mutation {
+    magicSubmitSurvey(
+        input: MagicSurveySubmitInput! @doc(description: "Survey submission payload.")
+    ): Boolean
+        @resolver(class: "Magic\\Survey\\Model\\Resolver\\SubmitSurvey")
+        @doc(description: "Submit a customer survey response. Returns true on success.")
+}
+
+type MagicSurvey @doc(description: "A survey definition.") {
+    survey_id:   Int    @doc(description: "Survey ID.")
+    title:       String @doc(description: "Survey title displayed to the customer.")
+    description: String @doc(description: "Optional survey description or subtitle.")
+    status:      Int    @doc(description: "1 = Enabled, 0 = Disabled.")
+    start_date:  String @doc(description: "Survey start date (Y-m-d). Null means no start restriction.")
+    end_date:    String @doc(description: "Survey end date (Y-m-d). Null means no expiry.")
+    created_at:  String @doc(description: "Record creation timestamp.")
+    updated_at:  String @doc(description: "Record last-updated timestamp.")
+}
+
+type MagicSurveyQuestion @doc(description: "A question belonging to a survey.") {
+    question_id: Int                      @doc(description: "Question ID.")
+    survey_id:   Int                      @doc(description: "Parent survey ID.")
+    title:       String                   @doc(description: "Question text shown to the customer.")
+    type:        String                   @doc(description: "Question type: radio, checkbox, dropdown, or text.")
+    is_required: Int                      @doc(description: "1 = answer required, 0 = optional.")
+    sort_order:  Int                      @doc(description: "Display sort order within the survey.")
+    options:     [MagicSurveyAnswerOption] @doc(description: "Answer options (populated for radio, checkbox, dropdown types).")
+}
+
+type MagicSurveyAnswerOption @doc(description: "A selectable answer option for a question.") {
+    option_id:   Int    @doc(description: "Option ID.")
+    question_id: Int    @doc(description: "Parent question ID.")
+    label:       String @doc(description: "Display label for this option.")
+    sort_order:  Int    @doc(description: "Display sort order within the question.")
+}
+
+input MagicSurveySubmitInput @doc(description: "Payload for submitting a survey response.") {
+    survey_id:      Int!    @doc(description: "ID of the survey being answered.")
+    order_id:       Int!    @doc(description: "Order ID associated with this response.")
+    customer_email: String! @doc(description: "Email address of the respondent.")
+    answers:        [MagicSurveyAnswerInput!]! @doc(description: "Array of answers, one per question.")
+}
+
+input MagicSurveyAnswerInput @doc(description: "A single question answer.") {
+    question_id: Int!   @doc(description: "ID of the question being answered.")
+    option_id:   Int    @doc(description: "Selected option ID (for radio, checkbox, dropdown). Null for text questions.")
+    answer_text: String @doc(description: "Free-text answer (for text questions). Null for option-based questions.")
+}

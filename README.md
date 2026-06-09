@@ -15,6 +15,7 @@ A lightweight post-checkout survey module for Magento 2. Displays a survey on th
 - Admin results grid with a detailed per-response view
 - Full ACL support for admin permissions
 - REST API for fetching surveys, questions, and submitting responses
+- GraphQL API with queries and mutation
 
 ---
 
@@ -270,6 +271,147 @@ true
 
 ---
 
+## GraphQL API
+
+The module exposes a GraphQL schema with two queries and one mutation. Send all requests to your store's GraphQL endpoint: `/graphql`
+
+---
+
+### Query: magicActiveSurvey
+
+Returns the currently active survey.
+
+```graphql
+query {
+  magicActiveSurvey {
+    survey_id
+    title
+    description
+    status
+    start_date
+    end_date
+  }
+}
+```
+
+**Response**
+
+```json
+{
+  "data": {
+    "magicActiveSurvey": {
+      "survey_id": 1,
+      "title": "Tell us your Journey",
+      "description": "We'd love to hear about your experience.",
+      "status": 1,
+      "start_date": "2026-06-01",
+      "end_date": "2026-12-31"
+    }
+  }
+}
+```
+
+---
+
+### Query: magicSurveyQuestions
+
+Returns all questions (with nested answer options) for a given survey.
+
+```graphql
+query {
+  magicSurveyQuestions(survey_id: 1) {
+    question_id
+    title
+    type
+    is_required
+    sort_order
+    options {
+      option_id
+      label
+      sort_order
+    }
+  }
+}
+```
+
+**Response**
+
+```json
+{
+  "data": {
+    "magicSurveyQuestions": [
+      {
+        "question_id": 1,
+        "title": "How easy was it to find the product(s) you wanted today?",
+        "type": "radio",
+        "is_required": 1,
+        "sort_order": 0,
+        "options": [
+          { "option_id": 1, "label": "Very easy",      "sort_order": 0 },
+          { "option_id": 2, "label": "Easy",           "sort_order": 1 },
+          { "option_id": 3, "label": "Neutral",        "sort_order": 2 },
+          { "option_id": 4, "label": "Difficult",      "sort_order": 3 },
+          { "option_id": 5, "label": "Very difficult", "sort_order": 4 }
+        ]
+      },
+      {
+        "question_id": 5,
+        "title": "What did you like most about your experience today?",
+        "type": "text",
+        "is_required": 0,
+        "sort_order": 4,
+        "options": []
+      }
+    ]
+  }
+}
+```
+
+---
+
+### Mutation: magicSubmitSurvey
+
+Submits a customer's survey response. Returns `true` on success.
+
+```graphql
+mutation {
+  magicSubmitSurvey(input: {
+    survey_id: 1
+    order_id: 192
+    customer_email: "customer@example.com"
+    answers: [
+      { question_id: 1, option_id: 2,  answer_text: null }
+      { question_id: 2, option_id: 8,  answer_text: null }
+      { question_id: 3, option_id: 13, answer_text: null }
+      { question_id: 4, option_id: null, answer_text: "Great product range!" }
+      { question_id: 5, option_id: null, answer_text: "Search could be improved." }
+    ]
+  })
+}
+```
+
+**Response**
+
+```json
+{
+  "data": {
+    "magicSubmitSurvey": true
+  }
+}
+```
+
+**GraphQL Schema File**: `etc/schema.graphqls`
+
+**Resolvers**:
+
+| Resolver class | Purpose |
+|---|---|
+| `Model/Resolver/ActiveSurvey.php` | Returns first active survey matching today's date |
+| `Model/Resolver/SurveyQuestions.php` | Returns questions + options for a survey |
+| `Model/Resolver/SubmitSurvey.php` | Saves a survey response and all answers |
+
+---
+
 ## How It Works
 
 1. When a customer completes an order, the `checkout_onepage_controller_success_action` event fires
@@ -277,44 +419,6 @@ true
 3. If found, the survey is injected into the order success page via a block observer
 4. The customer fills in the survey and submits via AJAX — no page reload
 5. The response and all per-question answers are saved to the database linked to the order
-
----
-
-## Module Structure
-
-```
-app/code/Magic/Survey/
-├── Api/
-│   ├── Data/
-│   │   ├── AnswerDataInterface.php       — DTO for REST submit answers
-│   │   ├── AnswerOptionInterface.php     — Answer option data contract
-│   │   ├── QuestionInterface.php         — Question data contract (with options)
-│   │   ├── ResponseDetailInterface.php   — Response detail data contract
-│   │   ├── ResponseInterface.php         — Response data contract
-│   │   └── SurveyInterface.php           — Survey data contract
-│   └── SurveyManagementInterface.php     — REST service contract
-├── Block/
-│   ├── Adminhtml/                        — Admin UI blocks
-│   └── Survey.php                        — Frontend survey block
-├── Controller/
-│   ├── Adminhtml/                        — Admin controllers
-│   └── Index/Submit.php                  — Frontend AJAX submit
-├── Model/
-│   ├── Data/AnswerData.php               — REST answer DTO
-│   ├── ResourceModel/                    — ORM resource models
-│   ├── SurveyManagement.php              — REST service implementation
-│   └── *.php                             — Entity models
-├── Observer/OrderSuccess.php             — Post-checkout survey hook
-├── etc/
-│   ├── db_schema.xml                     — Declarative schema (5 tables)
-│   ├── di.xml                            — DI preferences & virtual types
-│   ├── webapi.xml                        — REST API routes
-│   └── ...
-├── view/
-│   ├── adminhtml/                        — Admin layouts, UI components, templates
-│   └── frontend/                         — Frontend layout & survey form template
-└── README.md
-```
 
 ---
 
